@@ -72,8 +72,8 @@ jobs:
         with:
           context: ${{ env.WORKFLOW_TARGET_DIR }}/papermark-src
           file: ${{ env.WORKFLOW_TARGET_DIR }}/Dockerfile.papermark
-          push: false
-          load: true
+          push: true
+          load: false
           tags: |
             ${{ env.IMAGE_PREFIX }}/papermark:sha-${{ steps.vars.outputs.sha }}
             ${{ env.IMAGE_PREFIX }}/papermark:latest
@@ -85,79 +85,6 @@ jobs:
             OPENAI_API_KEY=sk-test12345
           cache-from: type=gha,scope=papermark-app-n20
           cache-to: type=gha,mode=max,scope=papermark-app-n20
-
-      # -------- Optional: WireGuard setup --------
-      - name: Install WireGuard tools (if needed)
-        if: ${{ env.USE_WG == true }}
-        run: |
-          set -o errexit -o pipefail -o nounset
-
-          # Keep the UI alive while apt works
-          ( while sleep 20; do echo "::notice::Installing wireguard-tools... still running"; done ) &
-          HB=$!
-
-          sudo apt-get update \
-            -o Acquire::Retries=3 \
-            -o Acquire::http::Timeout=30
-
-          sudo timeout 5m sudo DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends \
-            -o Dpkg::Use-Pty=0 \
-            wireguard-tools
-
-          kill $HB || true
-          wg --version || true
-
-      - name: Configure & bring up WireGuard
-        if: ${{ env.USE_WG == true }}
-        env:
-          WG_CONF: ${{ secrets.WG_CONF }}
-        run: |
-          set -euo pipefail
-          sudo mkdir -p /etc/wireguard
-          echo "${WG_CONF}" | sudo tee /etc/wireguard/wg0.conf >/dev/null
-          sudo chmod 600 /etc/wireguard/wg0.conf
-          sudo timeout 20s wg-quick up wg0 || true
-
-          for i in {1..30}; do
-            if ip link show wg0 >/dev/null 2>&1; then
-              break
-            fi
-            sleep 1
-          done
-
-          if [ -n "${REGISTRY_IP:-}" ]; then
-            echo "${REGISTRY_IP} ${REGISTRY}" | sudo tee -a /etc/hosts
-          fi
-
-          echo "WireGuard status:"
-          sudo wg show
-
-      - name: Docker login to GHCR
-        if: ${{ env.REGISTRY == 'ghcr.io' }}
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Docker login
-        if: ${{ env.REGISTRY != 'ghcr.io' }}
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ secrets.REGISTRY_USERNAME }}
-          password: ${{ secrets.REGISTRY_PASSWORD }}
-
-      - name: Push Papermark image
-        run: |
-          set -e
-          docker push "${IMAGE_PREFIX}/papermark:sha-${{ steps.vars.outputs.sha }}"
-          docker push "${IMAGE_PREFIX}/papermark:latest"
-
-      - name: Teardown WireGuard
-        if: always() && env.USE_WG
-        run: |
-          sudo timeout 10s wg-quick down wg0 || true
 
       - name: Summary
         run: |
