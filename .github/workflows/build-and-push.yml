@@ -81,7 +81,8 @@ jobs:
           sbom: false
           build-args: |
             BUILDKIT_INLINE_CACHE=1
-            NODE_VERSION=20
+            NODE_VERSION=22
+            OPENAI_API_KEY="sk-test12345"
           cache-from: type=gha,scope=papermark-app-n20
           cache-to: type=gha,mode=max,scope=papermark-app-n20
 
