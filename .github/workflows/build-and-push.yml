@@ -17,6 +17,11 @@ env:
   WORKFLOW_TARGET_DIR: "." # no trailing slash
   USE_WG: ${{ secrets.WG_CONF != '' }}
 
+# Permissions required for pushing to ghcr.io
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -66,6 +71,13 @@ jobs:
         with:
           driver-opts: network=host
 
+      - name: Log in to Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+          
       # -------- Build Papermark application --------
       - name: Build Papermark
         uses: docker/build-push-action@v6
