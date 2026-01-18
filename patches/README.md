@@ -21,7 +21,7 @@ The patches in this directory are used to customize the upstream Papermark appli
 
 **Problem**: The upstream Papermark middleware has hardcoded domain checks that treat any non-Papermark domain as a "custom domain" for document sharing. This causes `datarom.sors.no` to be redirected to `papermark.com`.
 
-**Solution**: Modified the `isCustomDomain()` function to include `sors.no` in the list of allowed primary domains:
+**Solution**: Modified the `isCustomDomain()` function to include `sors.no` in the list of allowed primary domains with precise domain matching:
 
 ```typescript
 function isCustomDomain(host: string) {
@@ -33,12 +33,15 @@ function isCustomDomain(host: string) {
         host?.includes("localhost") ||
         host?.includes("papermark.io") ||
         host?.includes("papermark.com") ||
-        host?.includes("sors.no") ||  // <-- Added for self-hosted deployment
+        host === "sors.no" ||               // <-- Exact match for sors.no
+        host?.endsWith(".sors.no") ||       // <-- Match all *.sors.no subdomains
         host?.endsWith(".vercel.app")
       ))
   );
 }
 ```
+
+**Security Note**: The patch uses precise domain matching (`host === "sors.no" || host?.endsWith(".sors.no")`) instead of `host?.includes("sors.no")` to prevent false positives like `mysors.no` or `sors.no.evil.com`.
 
 **Effect**: With this patch, `datarom.sors.no` will be treated as a primary application domain and will properly show the login page, dashboard, and other application routes instead of redirecting to `papermark.com`.
 
