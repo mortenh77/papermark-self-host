@@ -45,10 +45,6 @@ WORKDIR /app
 
 # Copy dependencies from deps stage
 COPY --from=deps /app/node_modules ./node_modules
-
-# Copy application source
-# Note: Self-hosting patches (middleware.ts, etc.) are applied by the CI workflow
-# before the Docker build, so they are included in this COPY step
 COPY . .
 
 # Set environment variables for build
@@ -58,8 +54,9 @@ ENV NODE_ENV=production
 # Generate Prisma Client
 RUN npx prisma generate
 
-# Apply next.config override if exists (copied by CI workflow)
+# Copy next.config override if exists, otherwise use original
 # This allows customization for Docker builds
+COPY --chown=node:node next.config.docker.js* ./next.config.docker.js
 RUN if [ -f next.config.docker.js ]; then \
       cp next.config.js next.config.original.js || true; \
       cp next.config.docker.js next.config.js; \

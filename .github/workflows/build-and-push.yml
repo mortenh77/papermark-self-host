@@ -63,35 +63,14 @@ jobs:
         working-directory: ${{ env.WORKFLOW_TARGET_DIR }}
         run: |
           echo "==> Applying self-hosting patches to papermark-src"
-          # Copy patches if they exist (excluding README files, preserving directory structure)
-          if [ -d "patches" ]; then
-            echo "Found patches directory, copying files..."
-            # Use rsync if available, otherwise fallback to cp with find
-            if command -v rsync >/dev/null 2>&1; then
-              rsync -av --exclude='README*.md' patches/ papermark-src/
-            else
-              # Safer approach using find with null-termination
-              cd patches
-              find . -type f ! -name 'README*.md' -print0 | while IFS= read -r -d '' file; do
-                dest="../papermark-src/${file#./}"
-                mkdir -p "$(dirname "$dest")"
-                cp -v "$file" "$dest"
-              done
-              cd ..
+          cd papermark-src
+          for patch in ../patches/*.patch; do
+            if [ -f "$patch" ]; then
+              echo "Applying $(basename "$patch")..."
+              patch -p0 < "$patch"
+              echo "✅ $(basename "$patch") applied successfully"
             fi
-            echo "✅ Patches applied"
-          else
-            echo "No patches directory found, skipping..."
-          fi
-          # Copy custom config files if they exist
-          if [ -f "next.config.docker.js" ]; then
-            echo "Copying next.config.docker.js..."
-            cp -v next.config.docker.js papermark-src/
-          fi
-          if [ -f "health-endpoint.ts" ]; then
-            echo "Copying health-endpoint.ts..."
-            cp -v health-endpoint.ts papermark-src/
-          fi
+          done
 
       - name: Set short SHA
         id: vars
