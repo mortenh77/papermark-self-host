@@ -59,6 +59,28 @@ jobs:
           echo "==> Resulting HEAD:"
           git --no-pager log --oneline -n 5
 
+      - name: Apply self-hosting patches
+        working-directory: ${{ env.WORKFLOW_TARGET_DIR }}
+        run: |
+          echo "==> Applying self-hosting patches to papermark-src"
+          # Copy patches if they exist
+          if [ -d "patches" ]; then
+            echo "Found patches directory, copying files..."
+            cp -rv patches/* papermark-src/ 2>/dev/null || true
+            echo "✅ Patches applied"
+          else
+            echo "No patches directory found, skipping..."
+          fi
+          # Copy custom config files if they exist
+          if [ -f "next.config.docker.js" ]; then
+            echo "Copying next.config.docker.js..."
+            cp -v next.config.docker.js papermark-src/
+          fi
+          if [ -f "health-endpoint.ts" ]; then
+            echo "Copying health-endpoint.ts..."
+            cp -v health-endpoint.ts papermark-src/
+          fi
+
       - name: Set short SHA
         id: vars
         run: echo "sha=${GITHUB_SHA::12}" >> $GITHUB_OUTPUT
