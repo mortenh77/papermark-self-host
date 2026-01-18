@@ -1,0 +1,10 @@
+--- middleware.ts.orig	2026-01-18 20:50:00.000000000 +0000
++++ middleware.ts	2026-01-18 20:50:00.000000000 +0000
+@@ -28,6 +28,7 @@
+         host?.includes("localhost") ||
+         host?.includes("papermark.io") ||
+         host?.includes("papermark.com") ||
++        host?.includes("sors.no") ||
+         host?.endsWith(".vercel.app")
+       ))
+   );

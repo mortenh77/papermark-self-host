@@ -59,6 +59,19 @@ jobs:
           echo "==> Resulting HEAD:"
           git --no-pager log --oneline -n 5
 
+      - name: Apply self-hosting patches
+        working-directory: ${{ env.WORKFLOW_TARGET_DIR }}
+        run: |
+          echo "==> Applying self-hosting patches to papermark-src"
+          cd papermark-src
+          for patch in ../patches/*.patch; do
+            if [ -f "$patch" ]; then
+              echo "Applying $(basename "$patch")..."
+              patch -p0 < "$patch"
+              echo "✅ $(basename "$patch") applied successfully"
+            fi
+          done
+
       - name: Set short SHA
         id: vars
         run: echo "sha=${GITHUB_SHA::12}" >> $GITHUB_OUTPUT

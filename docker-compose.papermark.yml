@@ -118,6 +118,8 @@ services:
   # ==========================================================================
   papermark:
     image: ${PAPERMARK_IMAGE:-ghcr.io/mortenh77/papermark:latest}
+    env_file:
+      - .env
     networks:
       - traefik_public
       - papermark_internal
