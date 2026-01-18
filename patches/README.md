@@ -77,17 +77,19 @@ The patches are applied in `.github/workflows/build-and-push.yml` during the CI 
 # Uses rsync if available for efficient copying
 rsync -av --exclude='README*.md' patches/ papermark-src/
 
-# Falls back to find+cp if rsync is not available
+# Falls back to secure find with null-termination if rsync is not available
 cd patches
-find . -type f ! -name "README*.md" -exec sh -c '
-  dest="../papermark-src/$1"
+find . -type f ! -name 'README*.md' -print0 | while IFS= read -r -d '' file; do
+  dest="../papermark-src/${file#./}"
   mkdir -p "$(dirname "$dest")"
-  cp -v "$1" "$dest"
-' _ {} \;
+  cp -v "$file" "$dest"
+done
+cd ..
 ```
 
 This approach ensures that:
 - Patches are applied before the build process
 - Directory structure is preserved for patches in subdirectories
 - README files are automatically excluded
+- Special characters in filenames are handled safely (null-terminated find)
 - The process works reliably across different environments
