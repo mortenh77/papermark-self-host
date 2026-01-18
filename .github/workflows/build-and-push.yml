@@ -63,10 +63,21 @@ jobs:
         working-directory: ${{ env.WORKFLOW_TARGET_DIR }}
         run: |
           echo "==> Applying self-hosting patches to papermark-src"
-          # Copy patches if they exist (excluding README files)
+          # Copy patches if they exist (excluding README files, preserving directory structure)
           if [ -d "patches" ]; then
             echo "Found patches directory, copying files..."
-            find patches -type f ! -name "README*.md" -exec sh -c 'cp -v "$1" "papermark-src/$(basename "$1")"' _ {} \;
+            # Use rsync if available, otherwise fallback to cp with find
+            if command -v rsync >/dev/null 2>&1; then
+              rsync -av --exclude='README*.md' patches/ papermark-src/
+            else
+              cd patches
+              find . -type f ! -name "README*.md" -exec sh -c '
+                dest="../papermark-src/$1"
+                mkdir -p "$(dirname "$dest")"
+                cp -v "$1" "$dest"
+              ' _ {} \;
+              cd ..
+            fi
             echo "✅ Patches applied"
           else
             echo "No patches directory found, skipping..."

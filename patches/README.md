@@ -8,9 +8,10 @@ The patches in this directory are used to customize the upstream Papermark appli
 
 ## How It Works
 
-1. During the Docker build (see `Dockerfile.papermark`), the upstream Papermark source is cloned
-2. Files from this `patches/` directory are copied over the corresponding files in the Papermark source
-3. The modified source is then built into the Docker image
+1. During the CI workflow (see `.github/workflows/build-and-push.yml`), the upstream Papermark source is cloned
+2. Files from this `patches/` directory are copied over the corresponding files in the Papermark source, preserving directory structure
+3. README files are automatically excluded to preserve Papermark documentation
+4. The modified source is then built into the Docker image
 
 ## Current Patches
 
@@ -46,12 +47,16 @@ function isCustomDomain(host: string) {
 To add a new patch:
 
 1. Identify the file in the upstream Papermark repository that needs modification
-2. Copy the modified file to this `patches/` directory, maintaining the same relative path structure
+2. Copy the modified file to this `patches/` directory, maintaining the same relative path structure from the Papermark root
+   - For files in the root (like `middleware.ts`), place directly in `patches/`
+   - For files in subdirectories (like `lib/middleware/app.ts`), create `patches/lib/middleware/app.ts`
 3. Document the patch in this README with:
    - The file being patched
    - The reason for the patch
    - What the patch does
    - Any side effects or considerations
+
+**Note**: README files (README*.md) are automatically excluded from being copied to avoid overwriting Papermark's documentation.
 
 ## Maintenance
 
@@ -63,17 +68,23 @@ When updating to a new version of Papermark:
 
 ## Technical Details
 
-The patches are applied in `Dockerfile.papermark` during the builder stage:
+The patches are applied in `.github/workflows/build-and-push.yml` during the CI workflow:
 
-```dockerfile
-# Apply self-hosting patches
-COPY patches/ /tmp/patches/
-RUN if [ -d "/tmp/patches" ]; then \
-      cp -r /tmp/patches/* . 2>/dev/null || true; \
-    fi
+```bash
+# Uses rsync if available for efficient copying
+rsync -av --exclude='README*.md' patches/ papermark-src/
+
+# Falls back to find+cp if rsync is not available
+cd patches
+find . -type f ! -name "README*.md" -exec sh -c '
+  dest="../papermark-src/$1"
+  mkdir -p "$(dirname "$dest")"
+  cp -v "$1" "$dest"
+' _ {} \;
 ```
 
 This approach ensures that:
 - Patches are applied before the build process
-- The build fails gracefully if patches directory doesn't exist
-- Only tracked files in the patches/ directory are applied
+- Directory structure is preserved for patches in subdirectories
+- README files are automatically excluded
+- The process works reliably across different environments
