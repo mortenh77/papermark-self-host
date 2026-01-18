@@ -19,9 +19,11 @@ The patches in this directory are used to customize the upstream Papermark appli
 
 **Purpose**: Fix custom domain handling for `sors.no` domain
 
-**Problem**: The upstream Papermark middleware has hardcoded domain checks that treat any non-Papermark domain as a "custom domain" for document sharing. This causes `datarom.sors.no` to be redirected to `papermark.com`.
+**Problem**: The upstream Papermark middleware has hardcoded domain checks that treat any non-Papermark domain as a "custom domain" for document sharing. Additionally, the upstream code uses insecure `includes()` checks that can match malicious domains like `evilpapermark.io` or `papermark.io.evil.com`. This causes both functional issues (redirects) and security concerns.
 
-**Solution**: Modified the `isCustomDomain()` function to include `sors.no` in the list of allowed primary domains with precise domain matching:
+**Solution**: Modified the `isCustomDomain()` function to:
+1. Include `sors.no` in the list of allowed primary domains
+2. Use secure domain matching for all domains to prevent false positives
 
 ```typescript
 function isCustomDomain(host: string) {
@@ -31,17 +33,22 @@ function isCustomDomain(host: string) {
     (process.env.NODE_ENV !== "development" &&
       !(
         host?.includes("localhost") ||
-        host?.includes("papermark.io") ||
-        host?.includes("papermark.com") ||
-        host === "sors.no" ||               // <-- Exact match for sors.no
-        host?.endsWith(".sors.no") ||       // <-- Match all *.sors.no subdomains
+        host === "papermark.io" ||           // <-- Exact match (security fix)
+        host?.endsWith(".papermark.io") ||   // <-- Subdomain match (security fix)
+        host === "papermark.com" ||          // <-- Exact match (security fix)
+        host?.endsWith(".papermark.com") ||  // <-- Subdomain match (security fix)
+        host === "sors.no" ||                // <-- Exact match for self-hosted
+        host?.endsWith(".sors.no") ||        // <-- Subdomain match for self-hosted
         host?.endsWith(".vercel.app")
       ))
   );
 }
 ```
 
-**Security Note**: The patch uses precise domain matching (`host === "sors.no" || host?.endsWith(".sors.no")`) instead of `host?.includes("sors.no")` to prevent false positives like `mysors.no` or `sors.no.evil.com`.
+**Security Improvements**: 
+- Fixed upstream security vulnerability: Changed `host?.includes("papermark.io")` to `host === "papermark.io" || host?.endsWith(".papermark.io")` to prevent matching malicious domains like `evilpapermark.io` or `papermark.io.evil.com`
+- Same fix applied to `papermark.com` domain checks
+- Applied secure matching pattern to new `sors.no` domain from the start
 
 **Effect**: With this patch, `datarom.sors.no` will be treated as a primary application domain and will properly show the login page, dashboard, and other application routes instead of redirecting to `papermark.com`.
 

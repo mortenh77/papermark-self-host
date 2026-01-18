@@ -26,8 +26,10 @@ function isCustomDomain(host: string) {
     (process.env.NODE_ENV !== "development" &&
       !(
         host?.includes("localhost") ||
-        host?.includes("papermark.io") ||
-        host?.includes("papermark.com") ||
+        host === "papermark.io" ||
+        host?.endsWith(".papermark.io") ||
+        host === "papermark.com" ||
+        host?.endsWith(".papermark.com") ||
         host === "sors.no" ||
         host?.endsWith(".sors.no") ||
         host?.endsWith(".vercel.app")
