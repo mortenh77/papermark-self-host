@@ -149,7 +149,7 @@ services:
       # ======================================================================
       DATABASE_URL: postgresql://${POSTGRES_USER:-papermark}:${POSTGRES_PASSWORD:?POSTGRES_PASSWORD is required}@postgres:5432/${POSTGRES_DB:-papermark}?schema=public&connect_timeout=30&pool_timeout=30&socket_timeout=30
       POSTGRES_PRISMA_URL: postgresql://${POSTGRES_USER:-papermark}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-papermark}?schema=public&pgbouncer=true&connect_timeout=15
-      POSTGRES_URL_NON_POOLING: postgresql://${POSTGRES_USER:-papermark}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-papermark}?schema=public
+      POSTGRES_PRISMA_URL_NON_POOLING: postgresql://${POSTGRES_USER:-papermark}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-papermark}?schema=public
       
       # ======================================================================
       # Redis Configuration (Optional)
