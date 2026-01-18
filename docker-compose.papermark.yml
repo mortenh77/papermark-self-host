@@ -70,9 +70,9 @@ services:
       start_period: 30s
     deploy:
       <<: *deploy-defaults
-      placement:
-        constraints:
-          - node.labels.papermark.postgres == true
+      # placement:
+      #  constraints:
+      #    - node.labels.papermark.postgres == true
       resources:
         limits:
           cpus: "2"
@@ -320,9 +320,9 @@ services:
     deploy:
       <<: *deploy-defaults
       replicas: 1
-      placement:
-        constraints:
-          - node.labels.papermark.backup == true
+      # placement:
+      #  constraints:
+      #    - node.labels.papermark.backup == true
       resources:
         limits:
           cpus: "0.5"
