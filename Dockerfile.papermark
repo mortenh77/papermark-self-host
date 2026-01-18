@@ -109,9 +109,10 @@ RUN apk add --no-cache \
 ENV NEXT_TELEMETRY_DISABLED=1
 ENV NODE_ENV=production
 
-# Ny (riktig for standalone output):
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
+# Copy built application
+COPY --from=builder /app/package*. json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/.next ./. next
 COPY --from=builder /app/public ./public
 
 # Copy Prisma schema and migrations
@@ -156,8 +157,8 @@ echo "======================================"
 echo "Starting Papermark..."
 echo "======================================"
 
-#exec npm start
-exec node server.js
+exec npm start
+# exec node server.js
 EOF
 
 # Set proper permissions
