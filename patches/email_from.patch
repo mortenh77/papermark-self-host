@@ -1,11 +1,17 @@
---- lib/emails/send-email.ts. orig       2026-01-19 00:00:00.000000000 +0000
-+++ lib/emails/send-email.ts    2026-01-19 00:00:00.000000000 +0000
-@@ -17,7 +17,7 @@
-   }
- 
-   return await resend.emails. send({
--    from: "Papermark <system@papermark.com>",
-+    from: process.env.EMAIL_FROM || "Papermark <system@papermark.com>",
-     to,
-     subject,
-     react: email,
+--- lib/resend.ts. orig  2026-01-19 00:00:00.000000000 +0000
++++ lib/resend.ts       2026-01-19 00:00:00.000000000 +0000
+@@ -49,11 +49,11 @@
+   const fromAddress =
+     from ?? 
+     (marketing
+-      ?  "Marc from Papermark <marc@updates.papermark.com>"
++      ? process.env.EMAIL_FROM || "Marc from Papermark <marc@updates.papermark.com>"
+       : system
+-        ? "Papermark <system@papermark.com>"
++        ? process.env.EMAIL_FROM || "Papermark <system@papermark.com>"
+         : verify
+-          ? "Papermark <system@verify.papermark.com>"
++          ?  process.env.EMAIL_FROM || "Papermark <system@verify.papermark.com>"
+           : !!scheduledAt
+             ? "Marc Seitz <marc@papermark.com>"
+             : "Marc from Papermark <marc@papermark.io>");
