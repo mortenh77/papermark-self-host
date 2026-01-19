@@ -1,17 +1,19 @@
 --- lib/resend.ts
 +++ lib/resend.ts
-@@ -48,11 +48,11 @@
+@@ -48,13 +48,13 @@
    const fromAddress =
      from ??
      (marketing
--      ? "Marc from Papermark <marc@updates.papermark. com>"
-+      ? process. env.EMAIL_FROM || "Marc from Papermark <marc@updates.papermark.com>"
+-      ? "Marc from Papermark <marc@updates.papermark.com>"
++      ? process.env.EMAIL_FROM || "Marc from Papermark <marc@updates.papermark.com>"
        : system
--        ? "Papermark <system@papermark. com>"
-+        ? process. env.EMAIL_FROM || "Papermark <system@papermark. com>"
+-        ? "Papermark <system@papermark.com>"
++        ? process.env.EMAIL_FROM || "Papermark <system@papermark.com>"
          : verify
 -          ? "Papermark <system@verify.papermark.com>"
-+          ? process.env. EMAIL_FROM || "Papermark <system@verify.papermark. com>"
++          ? process.env.EMAIL_FROM || "Papermark <system@verify.papermark.com>"
            : !! scheduledAt
              ? "Marc Seitz <marc@papermark.com>"
              : "Marc from Papermark <marc@papermark.io>");
+ 
+   try {
