@@ -38,13 +38,15 @@ networks:
     attachable: true
     internal: false
 
-volumes:
-  papermark_postgres_data:
-    driver: local
-  papermark_redis_data:
-    driver: local
-  papermark_uploads:
-    driver: local
+# Volumes are now configured as bind mounts in the services section
+# Default paths: /mnt/shared/docker-data/papermark/{postgres,redis,uploads,backups}
+# volumes:
+#   papermark_postgres_data:
+#     driver: local
+#   papermark_redis_data:
+#     driver: local
+#   papermark_uploads:
+#     driver: local
 
 services:
   # ==========================================================================
@@ -55,7 +57,7 @@ services:
     networks:
       - papermark_internal
     volumes:
-      - papermark_postgres_data:/var/lib/postgresql/data
+      - ${POSTGRES_DATA_PATH:-/mnt/shared/docker-data/papermark/postgres}:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: ${POSTGRES_DB:-papermark}
       POSTGRES_USER: ${POSTGRES_USER:-papermark}
@@ -90,7 +92,7 @@ services:
     networks:
       - papermark_internal
     volumes:
-      - papermark_redis_data:/data
+      - ${REDIS_DATA_PATH:-/mnt/shared/docker-data/papermark/redis}:/data
     command: >
       redis-server
       --appendonly yes
@@ -124,7 +126,7 @@ services:
       - traefik_public
       - papermark_internal
     volumes:
-      - papermark_uploads:/app/uploads
+      - ${UPLOADS_PATH:-/mnt/shared/docker-data/papermark/uploads}:/app/uploads
     environment:
       # ======================================================================
       # Core Configuration
@@ -306,7 +308,7 @@ services:
     networks:
       - papermark_internal
     volumes:
-      - ${BACKUP_PATH:-./backups}:/backups
+      - ${BACKUP_PATH:-/mnt/shared/docker-data/papermark/backups}:/backups
     environment:
       POSTGRES_HOST: postgres
       POSTGRES_DB: ${POSTGRES_DB:-papermark}

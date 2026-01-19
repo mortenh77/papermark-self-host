@@ -344,14 +344,51 @@ docker exec -i $(docker ps -q -f name=papermark_postgres) \
   psql -U papermark papermark < backup-20241027.sql
 ```
 
-**Backup Location:**
+**Storage Configuration:**
 
-Backups are stored in `./backups` by default. Configure in `.env`:
+All Docker data is now stored using bind mounts to the host filesystem. By default, data is stored in `/mnt/shared/docker-data/papermark/` with the following structure:
+
+- PostgreSQL data: `/mnt/shared/docker-data/papermark/postgres`
+- Redis data: `/mnt/shared/docker-data/papermark/redis`
+- Uploaded files: `/mnt/shared/docker-data/papermark/uploads`
+- Database backups: `/mnt/shared/docker-data/papermark/backups`
+- MinIO data (if used): `/mnt/shared/docker-data/papermark/papermark`
+
+**Customizing Storage Paths:**
+
+You can customize these paths in your `.env` file:
 
 ```bash
-BACKUP_PATH=/mnt/backups/papermark
+# PostgreSQL data directory
+POSTGRES_DATA_PATH=/custom/path/postgres
+
+# Redis data directory
+REDIS_DATA_PATH=/custom/path/redis
+
+# Application uploads directory
+UPLOADS_PATH=/custom/path/uploads
+
+# PostgreSQL backups directory
+BACKUP_PATH=/custom/path/backups
+
+# MinIO data directory (if using MinIO)
+MINIO_DATA_PATH=/custom/path/minio
+
+# Backup schedule and retention
 BACKUP_SCHEDULE=@daily
 BACKUP_KEEP_DAYS=7
+BACKUP_KEEP_WEEKS=4
+BACKUP_KEEP_MONTHS=6
+```
+
+**Important:** Ensure that the directories exist and have proper permissions before starting the services:
+
+```bash
+# Create directory structure
+sudo mkdir -p /mnt/shared/docker-data/papermark/{postgres,redis,uploads,backups,papermark}
+
+# Set proper ownership (adjust user:group as needed)
+sudo chown -R papermark:papermark /mnt/shared/docker-data/papermark/
 ```
 
 ### Database Migrations
