@@ -1,0 +1,11 @@
+--- lib/emails/send-email.ts. orig       2026-01-19 00:00:00.000000000 +0000
++++ lib/emails/send-email.ts    2026-01-19 00:00:00.000000000 +0000
+@@ -17,7 +17,7 @@
+   }
+ 
+   return await resend.emails. send({
+-    from: "Papermark <system@papermark.com>",
++    from: process.env.EMAIL_FROM || "Papermark <system@papermark.com>",
+     to,
+     subject,
+     react: email,
