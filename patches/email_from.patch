@@ -1,17 +1,20 @@
---- lib/resend.ts. orig  2026-01-19 00:00:00.000000000 +0000
-+++ lib/resend.ts       2026-01-19 00:00:00.000000000 +0000
-@@ -49,11 +49,11 @@
+--- lib/resend. ts. orig
++++ lib/resend.ts
+@@ -46,14 +46,14 @@
+   const html = await render(react);
+   const plainText = toPlainText(html);
+ 
    const fromAddress =
-     from ?? 
+     from ??
      (marketing
 -      ?  "Marc from Papermark <marc@updates.papermark.com>"
-+      ? process.env.EMAIL_FROM || "Marc from Papermark <marc@updates.papermark.com>"
++      ? process.env. EMAIL_FROM || "Marc from Papermark <marc@updates.papermark.com>"
        : system
 -        ? "Papermark <system@papermark.com>"
-+        ? process.env.EMAIL_FROM || "Papermark <system@papermark.com>"
++        ? process.env. EMAIL_FROM || "Papermark <system@papermark.com>"
          : verify
--          ? "Papermark <system@verify.papermark.com>"
-+          ?  process.env.EMAIL_FROM || "Papermark <system@verify.papermark.com>"
+-          ?  "Papermark <system@verify.papermark.com>"
++          ? process.env.EMAIL_FROM || "Papermark <system@verify.papermark.com>"
            : !!scheduledAt
              ? "Marc Seitz <marc@papermark.com>"
              : "Marc from Papermark <marc@papermark.io>");
