@@ -1,20 +1,17 @@
---- lib/resend. ts. orig
+--- lib/resend.ts.orig
 +++ lib/resend.ts
-@@ -46,14 +46,14 @@
-   const html = await render(react);
-   const plainText = toPlainText(html);
- 
+@@ -48,11 +48,11 @@
    const fromAddress =
      from ??
      (marketing
--      ?  "Marc from Papermark <marc@updates.papermark.com>"
-+      ? process.env. EMAIL_FROM || "Marc from Papermark <marc@updates.papermark.com>"
+-      ? "Marc from Papermark <marc@updates.papermark.com>"
++      ? process.env.EMAIL_FROM || "Marc from Papermark <marc@updates.papermark.com>"
        : system
 -        ? "Papermark <system@papermark.com>"
-+        ? process.env. EMAIL_FROM || "Papermark <system@papermark.com>"
++        ? process.env.EMAIL_FROM || "Papermark <system@papermark.com>"
          : verify
--          ?  "Papermark <system@verify.papermark.com>"
+-          ? "Papermark <system@verify.papermark.com>"
 +          ? process.env.EMAIL_FROM || "Papermark <system@verify.papermark.com>"
-           : !!scheduledAt
+           : !! scheduledAt
              ? "Marc Seitz <marc@papermark.com>"
              : "Marc from Papermark <marc@papermark.io>");
