@@ -1,9 +1,10 @@
---- pages/api/auth/[...nextauth].ts
+--- pages/api/auth/[...nextauth].ts.orig
 +++ pages/api/auth/[...nextauth].ts
-@@ -124,8 +124,8 @@
+@@ -121,8 +121,8 @@
+         sameSite: "lax",
          path: "/",
          // When working on localhost, the cookie domain must be omitted entirely (https://stackoverflow.com/a/1188145)
--        domain: VERCEL_DEPLOYMENT ? ".papermark.com" :  undefined,
+-        domain: VERCEL_DEPLOYMENT ? ".papermark.com" : undefined,
 -        secure: VERCEL_DEPLOYMENT,
 +        domain: process.env.NEXTAUTH_COOKIE_DOMAIN || (VERCEL_DEPLOYMENT ? ".papermark.com" : undefined),
 +        secure: process.env.NEXTAUTH_URL?.startsWith("https://") || VERCEL_DEPLOYMENT,
