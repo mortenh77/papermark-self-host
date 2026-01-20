@@ -1,4 +1,4 @@
---- pages/api/auth/[...nextauth].ts.orig
+--- pages/api/auth/[...nextauth].ts
 +++ pages/api/auth/[...nextauth].ts
 @@ -121,8 +121,8 @@
          sameSite: "lax",
